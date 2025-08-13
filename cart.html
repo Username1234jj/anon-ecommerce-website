@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Shopping Cart</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .cart-container {
+      max-width: 1000px;
+      margin: 50px auto;
+      padding: 30px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      font-size: 28px;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 10px;
+      color: #333;
+    }
+
+    .cart-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #eee;
+      padding: 20px 0;
+    }
+
+    .cart-item img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .cart-details {
+      flex: 2;
+      padding: 0 20px;
+    }
+
+    .cart-details h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #444;
+    }
+
+    .cart-price, .cart-total-item {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .cart-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cart-actions button {
+      padding: 5px 10px;
+      border: 1px solid #ccc;
+      background-color: #f8f8f8;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .cart-actions button:hover {
+      background-color: #ddd;
+    }
+
+    .remove-btn {
+      background-color: #ff4d4d;
+      color: #fff;
+      border: none;
+    }
+
+    .remove-btn:hover {
+      background-color: #cc0000;
+    }
+
+    .cart-summary {
+      text-align: right;
+      margin-top: 30px;
+    }
+
+    .cart-summary h2 {
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
+
+    .checkout-btn {
+      padding: 12px 25px;
+      font-size: 16px;
+      background-color: #28a745;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .checkout-btn:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cart-container">
+    <h1>Your Shopping Cart</h1>
+    <div id="cart-items"></div>
+
+    <div class="cart-summary">
+      <h2>Total: ₹<span id="total-price">0</span></h2>
+     <button class="checkout-btn" onclick="window.location.href='checkout.html'">Proceed to Checkout</button>
+
+    </div>
+  </div>
+
+  <script>
+    const cartContainer = document.getElementById('cart-items');
+    const totalPriceEl = document.getElementById('total-price');
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+   function updateCart() {
+  cartContainer.innerHTML = '';
+  let total = 0;
+
+  cart.forEach((item, index) => {
+    const itemTotal = item.price * item.quantity;
+    total += itemTotal;
+
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'cart-item';
+    itemDiv.innerHTML = `
+      <span><img src="${item.image}" alt="${item.name}" style="width:50px;height:auto;margin-right:10px;"></span>
+      <span>${item.name}</span>
+      <span>₹${item.price}</span>
+      <span>
+        <button onclick="changeQuantity(${index}, -1)">-</button>
+        ${item.quantity}
+        <button onclick="changeQuantity(${index}, 1)">+</button>
+      </span>
+      <span>₹${itemTotal.toFixed(2)}</span>
+      <span><button onclick="removeItem(${index})">Remove</button></span>
+    `;
+    cartContainer.appendChild(itemDiv);
+  });
+
+  totalPriceEl.textContent = total.toFixed(2);
+  localStorage.setItem('cart', JSON.stringify(cart));
+}
+
+
+    function changeQuantity(index, delta) {
+      cart[index].quantity += delta;
+      if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+      }
+      updateCart();
+    }
+
+    function removeItem(index) {
+      cart.splice(index, 1);
+      updateCart();
+    }
+
+    updateCart();
+     document.addEventListener('DOMContentLoaded', () => {
+    const checkoutBtn = document.querySelector('.checkout-btn');
+    if (checkoutBtn) {
+      checkoutBtn.addEventListener('click', () => {
+        // If cart is empty, warn user and don't go
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        if (!cart.length) {
+          alert('Your cart is empty. Add items before checkout.');
+          return;
+        }
+        window.location.href = 'checkout.html';
+      });
+    }
+  });
+  </script>
+  
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Order History — My Store</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+      background: #f4f5f7;
+      margin: 0;
+      padding: 30px 16px;
+      color: #222;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      padding: 24px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .order {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      padding: 16px;
+    }
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .order-header div {
+      font-size: 14px;
+      color: #555;
+    }
+    .order-items {
+      border-top: 1px solid #eee;
+      padding-top: 12px;
+    }
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .order-item-name {
+      font-weight: 500;
+    }
+    .order-total {
+      font-weight: bold;
+      text-align: right;
+      margin-top: 10px;
+    }
+    .no-orders {
+      text-align: center;
+      color: #777;
+      margin-top: 40px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Order History</h1>
+    <div id="orders-container"></div>
+    <div id="no-orders" class="no-orders" style="display: none;">You have no past orders.</div>
+  </div>
+
+  <script>
+    function formatPrice(num) {
+      return '₹' + Number(num).toFixed(2);
+    }
+
+    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    const ordersContainer = document.getElementById('orders-container');
+    const noOrders = document.getElementById('no-orders');
+
+    if (orders.length === 0) {
+      noOrders.style.display = 'block';
+    } else {
+      orders.reverse().forEach(order => {
+        const orderDiv = document.createElement('div');
+        orderDiv.className = 'order';
+
+        const header = `
+          <div class="order-header">
+            <div><strong>Order ID:</strong> ${order.id}</div>
+            <div><strong>Date:</strong> ${new Date(order.createdAt).toLocaleString()}</div>
+            <div><strong>Status:</strong> Confirmed</div>
+            <div><strong>Total:</strong> ${formatPrice(order.total)}</div>
+          </div>
+        `;
+
+        let itemsHtml = '';
+        order.items.forEach(item => {
+          const itemTotal = item.price * item.quantity;
+          itemsHtml += `
+            <div class="order-item">
+              <div class="order-item-name">${item.name} (x${item.quantity})</div>
+              <div>${formatPrice(itemTotal)}</div>
+            </div>
+          `;
+        });
+
+        const orderHtml = `
+          ${header}
+          <div class="order-items">
+            ${itemsHtml}
+            <div class="order-total">Total: ${formatPrice(order.total)}</div>
+          </div>
+        `;
+
+        orderDiv.innerHTML = orderHtml;
+        ordersContainer.appendChild(orderDiv);
+      });
+    }
+  </script>
+
+</body>
+</html>
